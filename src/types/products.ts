@@ -13,6 +13,7 @@ export interface VanProduct {
   weight: number;
   costEstimate: number;
   images?: string[];
+  technicalSpecs?: Record<string, string | number>;
   
   // Technical Logic
   mountingRequirements?: string[];
