@@ -14,6 +14,7 @@ import { FileText, Ruler } from 'lucide-react';
 
 export default function Workspace() {
   const { leftPanelOpen, rightPanelOpen, bottomPanelOpen } = useUIStore();
+  const aiPanelOpen = useUIStore((s) => s.aiPanelOpen);
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isTechnicalOpen, setIsTechnicalOpen] = useState(false);
 
@@ -29,7 +30,7 @@ export default function Workspace() {
           {bottomPanelOpen && <BottomDrawer />}
 
           {/* AI Architect Overlay */}
-          {useUIStore(s => s.aiPanelOpen) && (
+          {aiPanelOpen && (
             <div className="absolute top-8 left-8 z-50 w-80 animate-in slide-in-from-left-8 duration-500">
               <AIArchitect />
             </div>

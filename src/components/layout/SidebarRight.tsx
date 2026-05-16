@@ -29,6 +29,10 @@ export default function SidebarRight() {
   const selectedComponent = components.find(c => c.id === selectedComponentId);
   const productData = PRODUCT_REGISTRY.find(p => p.id === selectedComponent?.productId);
 
+  // Pre-compute analytics stats via proper hooks
+  const plumbingStats = useProjectStore((s) => s.getPlumbingStats());
+  const exteriorStats = useProjectStore((s) => s.getExteriorPerformanceStats());
+
   return (
     <aside className="w-80 border-l border-border bg-white flex flex-col z-40">
       <div className="flex border-b border-border bg-secondary/10">
@@ -57,7 +61,7 @@ export default function SidebarRight() {
         ) : activeTab === 'materials' ? (
           <div className="space-y-6">
             <h3 className="text-xs font-black uppercase tracking-widest text-primary mb-4 flex items-center gap-2">
-              <Palette size={14} /> Finish & Materials
+              <Palette size={14} /> Finish &amp; Materials
             </h3>
 
             {['wood', 'laminate', 'metal'].map((cat) => (
@@ -94,7 +98,6 @@ export default function SidebarRight() {
           </div>
         ) : activeTab === 'specs' ? (
           <div className="space-y-6">
-            {/* ... (Specs UI kept) */}
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-xs font-black uppercase tracking-tight text-primary">
@@ -170,32 +173,27 @@ export default function SidebarRight() {
                     <h4 className="text-[9px] font-black text-blue-600 uppercase tracking-widest flex items-center gap-2">
                       <Droplets size={12} /> Plumbing Intelligence
                     </h4>
-                    {(() => {
-                      const stats = useProjectStore.getState().getPlumbingStats();
-                      return (
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-[10px]">
-                            <span className="text-muted-foreground">Fresh Water Pool</span>
-                            <span className="font-bold">{stats.freshWaterL}L</span>
-                          </div>
-                          <div className="flex justify-between text-[10px]">
-                            <span className="text-muted-foreground">Flow Performance</span>
-                            <span className="font-bold">{stats.pumpFlowRate} L/min</span>
-                          </div>
-                          <div className="flex justify-between text-[10px]">
-                            <span className="text-muted-foreground">UV Filtration</span>
-                            <span className={`font-bold ${stats.hasFiltration ? 'text-emerald-600' : 'text-muted-foreground'}`}>
-                              {stats.hasFiltration ? 'Active' : 'Not Detected'}
-                            </span>
-                          </div>
-                          {stats.systemWarnings.map((w, i) => (
-                            <div key={i} className="flex items-center gap-2 text-[9px] font-bold text-red-500 mt-2">
-                              <AlertTriangle size={10} /> {w}
-                            </div>
-                          ))}
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-[10px]">
+                        <span className="text-muted-foreground">Fresh Water Pool</span>
+                        <span className="font-bold">{plumbingStats.freshWaterL}L</span>
+                      </div>
+                      <div className="flex justify-between text-[10px]">
+                        <span className="text-muted-foreground">Flow Performance</span>
+                        <span className="font-bold">{plumbingStats.pumpFlowRate} L/min</span>
+                      </div>
+                      <div className="flex justify-between text-[10px]">
+                        <span className="text-muted-foreground">UV Filtration</span>
+                        <span className={`font-bold ${plumbingStats.hasFiltration ? 'text-emerald-600' : 'text-muted-foreground'}`}>
+                          {plumbingStats.hasFiltration ? 'Active' : 'Not Detected'}
+                        </span>
+                      </div>
+                      {plumbingStats.systemWarnings.map((w, i) => (
+                        <div key={i} className="flex items-center gap-2 text-[9px] font-bold text-red-500 mt-2">
+                          <AlertTriangle size={10} /> {w}
                         </div>
-                      );
-                    })()}
+                      ))}
+                    </div>
                   </div>
                 )}
 
@@ -205,26 +203,21 @@ export default function SidebarRight() {
                     <h4 className="text-[9px] font-black text-amber-600 uppercase tracking-widest flex items-center gap-2">
                       <Shield size={12} /> Performance Intelligence
                     </h4>
-                    {(() => {
-                      const stats = useProjectStore.getState().getExteriorPerformanceStats();
-                      return (
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-[10px]">
-                            <span className="text-muted-foreground">Braking Advantage</span>
-                            <span className="font-bold text-emerald-600">+{stats.brakingPerformance}%</span>
-                          </div>
-                          <div className="flex justify-between text-[10px]">
-                            <span className="text-muted-foreground">Off-Road Capability</span>
-                            <span className="font-bold">{stats.offRoadCapability}/100</span>
-                          </div>
-                          {stats.systemWarnings.map((w, i) => (
-                            <div key={i} className="flex items-center gap-2 text-[9px] font-bold text-red-500 mt-2">
-                              <AlertTriangle size={10} /> {w}
-                            </div>
-                          ))}
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-[10px]">
+                        <span className="text-muted-foreground">Braking Advantage</span>
+                        <span className="font-bold text-emerald-600">+{exteriorStats.brakingPerformance}%</span>
+                      </div>
+                      <div className="flex justify-between text-[10px]">
+                        <span className="text-muted-foreground">Off-Road Capability</span>
+                        <span className="font-bold">{exteriorStats.offRoadCapability}/100</span>
+                      </div>
+                      {exteriorStats.systemWarnings.map((w, i) => (
+                        <div key={i} className="flex items-center gap-2 text-[9px] font-bold text-red-500 mt-2">
+                          <AlertTriangle size={10} /> {w}
                         </div>
-                      );
-                    })()}
+                      ))}
+                    </div>
                   </div>
                 )}
 
@@ -234,26 +227,21 @@ export default function SidebarRight() {
                     <h4 className="text-[9px] font-black text-foreground uppercase tracking-widest flex items-center gap-2">
                       <Sun size={12} /> Exterior Intelligence
                     </h4>
-                    {(() => {
-                      const stats = useProjectStore.getState().getExteriorPerformanceStats();
-                      return (
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-[10px]">
-                            <span className="text-muted-foreground">Solar Harvest</span>
-                            <span className="font-bold text-amber-600">{stats.totalSolarWatts} W</span>
-                          </div>
-                          <div className="flex justify-between text-[10px]">
-                            <span className="text-muted-foreground">Luminous Flux</span>
-                            <span className="font-bold">{stats.totalLumens} Lumens</span>
-                          </div>
-                          {stats.systemWarnings.map((w, i) => (
-                            <div key={i} className="flex items-center gap-2 text-[9px] font-bold text-red-500 mt-2">
-                              <AlertTriangle size={10} /> {w}
-                            </div>
-                          ))}
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-[10px]">
+                        <span className="text-muted-foreground">Solar Harvest</span>
+                        <span className="font-bold text-amber-600">{exteriorStats.totalSolarWatts} W</span>
+                      </div>
+                      <div className="flex justify-between text-[10px]">
+                        <span className="text-muted-foreground">Luminous Flux</span>
+                        <span className="font-bold">{exteriorStats.totalLumens} Lumens</span>
+                      </div>
+                      {exteriorStats.systemWarnings.map((w, i) => (
+                        <div key={i} className="flex items-center gap-2 text-[9px] font-bold text-red-500 mt-2">
+                          <AlertTriangle size={10} /> {w}
                         </div>
-                      );
-                    })()}
+                      ))}
+                    </div>
                   </div>
                 )}
 
@@ -273,8 +261,8 @@ export default function SidebarRight() {
               <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-xl">
                 <p className="text-[10px] font-bold text-emerald-700 uppercase mb-1">Manufacturer Guidance</p>
                 <p className="text-[11px] leading-relaxed text-emerald-900 italic">
-                  "Ensure all high-current connections are made with calibrated torque tools. {productData?.manufacturer} recommends 
-                  a minimum 70mm² cable for this {productData?.name} installation."
+                  &quot;Ensure all high-current connections are made with calibrated torque tools. {productData?.manufacturer} recommends 
+                  a minimum 70mm² cable for this {productData?.name} installation.&quot;
                 </p>
               </div>
 

@@ -32,6 +32,10 @@ export default function SidebarLeft() {
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const { addComponent } = useProjectStore();
+  const aiPanelOpen = useUIStore((s) => s.aiPanelOpen);
+  const toggleAiPanel = useUIStore((s) => s.toggleAiPanel);
+  const electricalStats = useProjectStore((s) => s.getElectricalStats());
+  const exteriorStats = useProjectStore((s) => s.getExteriorPerformanceStats());
 
   const handleAddProduct = (product: any) => {
     addComponent({
@@ -140,12 +144,12 @@ export default function SidebarLeft() {
 
       <div className="p-4 border-t border-border">
         <button 
-          onClick={() => useUIStore.getState().toggleAiPanel()}
+          onClick={toggleAiPanel}
           className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all border ${
-            useUIStore.getState().aiPanelOpen ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' : 'hover:bg-secondary text-primary border-transparent'
+            aiPanelOpen ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' : 'hover:bg-secondary text-primary border-transparent'
           }`}
         >
-          <Sparkles size={18} className={useUIStore.getState().aiPanelOpen ? 'animate-pulse' : ''} />
+          <Sparkles size={18} className={aiPanelOpen ? 'animate-pulse' : ''} />
           <span className="text-[10px] font-black uppercase tracking-widest">AI Architect</span>
         </button>
       </div>
@@ -162,19 +166,13 @@ export default function SidebarLeft() {
           <div className="flex items-center justify-between text-[9px]">
             <span className="font-bold">Off-Grid Capability</span>
             <span className="text-emerald-600 font-black">
-              {(() => {
-                const { offGridHours } = useProjectStore.getState().getElectricalStats();
-                if (offGridHours > 500) return 'Indefinite';
-                const days = Math.floor(offGridHours / 24);
-                const hours = Math.floor(offGridHours % 24);
-                return `${days}d ${hours}h`;
-              })()}
+              {electricalStats.offGridHours > 500 ? 'Indefinite' : `${Math.floor(electricalStats.offGridHours / 24)}d ${Math.floor(electricalStats.offGridHours % 24)}h`}
             </span>
           </div>
           <div className="flex items-center justify-between text-[9px]">
             <span className="font-bold">Solar Harvesting</span>
             <span className="text-amber-500 font-black">
-              {useProjectStore.getState().getExteriorPerformanceStats().totalSolarWatts} W
+              {exteriorStats.totalSolarWatts} W
             </span>
           </div>
         </div>
