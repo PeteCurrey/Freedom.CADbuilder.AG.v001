@@ -301,10 +301,6 @@ export default function SidebarRight() {
           </div>
         )}
       </div>
-    </aside>
-  );
-}
-
 
       <div className="p-4 border-t border-border bg-secondary/10">
         <button className="w-full flex items-center justify-between text-[10px] font-bold text-muted-foreground uppercase tracking-widest hover:text-primary transition-colors">
