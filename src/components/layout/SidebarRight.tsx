@@ -1,3 +1,6 @@
+'use client';
+
+import React, { useState } from 'react';
 import { 
   Info, 
   Settings2, 
@@ -18,7 +21,7 @@ import { PRODUCT_REGISTRY } from '@/data/products';
 import { MATERIAL_REGISTRY } from '@/registry/MaterialRegistry';
 
 export default function SidebarRight() {
-  const [activeTab, setActiveTab] = React.useState<'specs' | 'install' | 'materials'>('specs');
+  const [activeTab, setActiveTab] = useState<'specs' | 'install' | 'materials'>('specs');
   const { selectedComponentId, components, removeComponent, updateComponent } = useProjectStore();
   const selectedComponent = components.find(c => c.id === selectedComponentId);
   const productData = PRODUCT_REGISTRY.find(p => p.id === selectedComponent?.productId);
