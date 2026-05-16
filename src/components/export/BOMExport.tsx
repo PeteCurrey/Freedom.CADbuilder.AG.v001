@@ -7,7 +7,7 @@ import {
   ExternalLink, 
   ShieldCheck, 
   Clock, 
-  Tool,
+  Wrench,
   ArrowRight
 } from 'lucide-react';
 import { useProjectStore } from '@/store/useProjectStore';
