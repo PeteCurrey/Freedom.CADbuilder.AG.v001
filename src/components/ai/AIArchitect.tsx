@@ -14,11 +14,12 @@ import {
 import { useProjectStore } from '@/store/useProjectStore';
 
 export default function AIArchitect() {
-  const { components, getElectricalStats, getPlumbingStats } = useProjectStore();
   const [isProcessing, setIsProcessing] = useState(false);
-
-  const electrical = getElectricalStats();
-  const plumbing = getPlumbingStats();
+  // Subscribe to components for reactivity
+  const components = useProjectStore((s) => s.components);
+  // Read computed stats via getState() to avoid infinite re-render loops
+  const electrical = useProjectStore.getState().getElectricalStats();
+  const plumbing = useProjectStore.getState().getPlumbingStats();
 
   return (
     <div className="p-5 space-y-6 bg-slate-900 text-white rounded-[32px] border border-white/10 shadow-2xl overflow-hidden relative">

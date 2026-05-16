@@ -29,9 +29,10 @@ export default function SidebarRight() {
   const selectedComponent = components.find(c => c.id === selectedComponentId);
   const productData = PRODUCT_REGISTRY.find(p => p.id === selectedComponent?.productId);
 
-  // Pre-compute analytics stats via proper hooks
-  const plumbingStats = useProjectStore((s) => s.getPlumbingStats());
-  const exteriorStats = useProjectStore((s) => s.getExteriorPerformanceStats());
+  // Subscribe to components for reactivity — read computed stats via getState()
+  // (selector-based stats cause infinite re-renders since they return new objects each call)
+  const plumbingStats = useProjectStore.getState().getPlumbingStats();
+  const exteriorStats = useProjectStore.getState().getExteriorPerformanceStats();
 
   return (
     <aside className="w-80 border-l border-border bg-white flex flex-col z-40">

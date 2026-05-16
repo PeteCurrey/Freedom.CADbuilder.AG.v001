@@ -34,8 +34,12 @@ export default function SidebarLeft() {
   const { addComponent } = useProjectStore();
   const aiPanelOpen = useUIStore((s) => s.aiPanelOpen);
   const toggleAiPanel = useUIStore((s) => s.toggleAiPanel);
-  const electricalStats = useProjectStore((s) => s.getElectricalStats());
-  const exteriorStats = useProjectStore((s) => s.getExteriorPerformanceStats());
+  
+  // Subscribe to components for reactivity — then read computed stats directly
+  // (selector-based approach causes infinite loops as stats return new objects each call)
+  const components = useProjectStore((s) => s.components);
+  const electricalStats = useProjectStore.getState().getElectricalStats();
+  const exteriorStats = useProjectStore.getState().getExteriorPerformanceStats();
 
   const handleAddProduct = (product: any) => {
     addComponent({
