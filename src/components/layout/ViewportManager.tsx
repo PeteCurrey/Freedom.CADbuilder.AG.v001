@@ -1,9 +1,11 @@
 'use client';
 
 import React from 'react';
+import dynamic from 'next/dynamic';
 import { useUIStore } from '@/store/useUIStore';
-import Planner2D from '../planner/Planner2D';
-import Visualizer3D from '../visualizer/Visualizer3D';
+
+const Planner2D = dynamic(() => import('../planner/Planner2D'), { ssr: false });
+const Visualizer3D = dynamic(() => import('../visualizer/Visualizer3D'), { ssr: false });
 
 export default function ViewportManager() {
   const { activeView } = useUIStore();
