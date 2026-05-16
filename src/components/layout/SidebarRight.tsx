@@ -14,7 +14,10 @@ import {
   ShieldCheck,
   AlertTriangle,
   Palette,
-  Check
+  Check,
+  Droplets,
+  Shield,
+  Sun
 } from 'lucide-react';
 import { useProjectStore } from '@/store/useProjectStore';
 import { PRODUCT_REGISTRY } from '@/data/products';
