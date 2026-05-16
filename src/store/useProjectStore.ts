@@ -17,7 +17,7 @@ const defaultVehicle: VehicleConfig = {
   kerbWeight: 2300
 };
 
-export const useProjectStore = create<ProjectState>((set) => ({
+export const useProjectStore = create<ProjectState>((set, get) => ({
   vehicle: defaultVehicle,
   components: [
     {
