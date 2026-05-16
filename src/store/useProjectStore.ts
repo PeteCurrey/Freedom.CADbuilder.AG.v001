@@ -135,7 +135,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       // Battery Capacity
       if (product.subcategory === 'battery') {
         const capString = product.technicalSpecs?.['Capacity'] || '0Wh';
-        totalCapacityWh += parseInt(capString);
+        totalCapacityWh += parseInt(String(capString));
       }
 
       // Continuous & Peak Draw
@@ -182,12 +182,12 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       if (!product) return;
 
       if (product.subcategory === 'tank') {
-        if (product.name.toLowerCase().includes('fresh')) freshWaterL += parseInt(product.technicalSpecs?.['Volume'] || '0');
-        if (product.name.toLowerCase().includes('grey')) greyWaterL += parseInt(product.technicalSpecs?.['Volume'] || '0');
+        if (product.name.toLowerCase().includes('fresh')) freshWaterL += parseInt(String(product.technicalSpecs?.['Volume'] || '0'));
+        if (product.name.toLowerCase().includes('grey')) greyWaterL += parseInt(String(product.technicalSpecs?.['Volume'] || '0'));
       }
 
       if (product.subcategory === 'filtration') hasFiltration = true;
-      if (product.subcategory === 'pump') pumpFlowRate = Math.max(pumpFlowRate, parseFloat(product.technicalSpecs?.['Flow Rate'] || '0'));
+      if (product.subcategory === 'pump') pumpFlowRate = Math.max(pumpFlowRate, parseFloat(String(product.technicalSpecs?.['Flow Rate'] || '0')));
     });
 
     if (freshWaterL > 0 && pumpFlowRate === 0) systemWarnings.push('Fresh water tanks detected without a pump.');
@@ -210,12 +210,12 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
 
       if (product.category === 'hvac') {
         if (product.subcategory === 'heating') {
-          heatingBTU += parseInt(product.technicalSpecs?.['Heating Capacity'] || '0');
+          heatingBTU += parseInt(String(product.technicalSpecs?.['Heating Capacity'] || '0'));
           const fuel = product.technicalSpecs?.['Fuel Source'];
-          if (fuel && !fuelSource.includes(fuel.toLowerCase())) fuelSource.push(fuel.toLowerCase());
+          if (fuel && !fuelSource.includes(String(fuel).toLowerCase())) fuelSource.push(String(fuel).toLowerCase());
         }
         if (product.subcategory === 'cooling') {
-          coolingBTU += parseInt(product.technicalSpecs?.['Cooling Capacity'] || '0');
+          coolingBTU += parseInt(String(product.technicalSpecs?.['Cooling Capacity'] || '0'));
         }
         if (product.name.toLowerCase().includes('combi') || product.name.toLowerCase().includes('boiler')) hasHotWater = true;
       }
@@ -242,20 +242,20 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
 
       // Solar Harvesting
       if (product.subcategory === 'solar') {
-        totalSolarWatts += parseInt(product.technicalSpecs?.['Solar Watts'] || '0');
+        totalSolarWatts += parseInt(String(product.technicalSpecs?.['Solar Watts'] || '0'));
       }
 
       // Lighting Intensity
       if (product.subcategory === 'lighting') {
-        totalLumens += parseInt(product.technicalSpecs?.['Lumens'] || '0');
+        totalLumens += parseInt(String(product.technicalSpecs?.['Lumens'] || '0'));
       }
 
       // Performance Upgrades
       if (product.subcategory === 'brakes') {
-        brakingPerformance = Math.max(brakingPerformance, parseInt(product.technicalSpecs?.['Braking Improvement'] || '0'));
+        brakingPerformance = Math.max(brakingPerformance, parseInt(String(product.technicalSpecs?.['Braking Improvement'] || '0')));
       }
       if (product.subcategory === 'wheels' || product.subcategory === 'suspension') {
-        offRoadCapability = Math.max(offRoadCapability, parseInt(product.technicalSpecs?.['Off-Road Rating'] || '0'));
+        offRoadCapability = Math.max(offRoadCapability, parseInt(String(product.technicalSpecs?.['Off-Road Rating'] || '0')));
       }
 
       // Physical Impact
