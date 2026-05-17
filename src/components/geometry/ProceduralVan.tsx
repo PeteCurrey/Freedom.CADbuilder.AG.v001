@@ -16,352 +16,397 @@ export default function ProceduralVan({ vehicle }: ProceduralVanProps) {
   const h = height / 1000;
   const wb = (wheelbase || 3665) / 1000;
 
-  // Authentic brand-specific design parameters to match the Vanspace 3D style
+  // Custom brand visual and proportion setup
   const brandConfig = useMemo(() => {
     switch (vehicle.model) {
       case 'mercedes-sprinter':
         return {
-          bodyColor: '#f8fafc', // Gloss Arctic White
-          accentColor: '#1e293b',
-          noseLength: 1.2,
-          noseHeight: 0.98,
+          shellColor: '#0ea5e9', // Electric Cyan
+          wireColor: '#38bdf8',
+          fillColor: 'rgba(224, 242, 254, 0.15)', // Highly transparent ice blue
+          strokeColor: '#0284c7',
+          noseLength: 1.15,
+          noseHeight: 0.96,
           noseWidth: w * 0.94,
           windshieldAngle: 0.58,
-          grilleStyle: 'sprinter',
-          brandName: 'MERCEDES',
-          badgeColor: '#cbd5e1'
+          grilleRows: 3,
+          label: 'Mercedes-Benz Sprinter'
         };
       case 'ford-transit':
         return {
-          bodyColor: '#e2e8f0', // Frozen White
-          accentColor: '#0f172a',
-          noseLength: 1.05,
-          noseHeight: 1.02,
+          shellColor: '#64748b', // Slate Blue
+          wireColor: '#94a3b8',
+          fillColor: 'rgba(241, 245, 249, 0.15)', // Transparent slate white
+          strokeColor: '#475569',
+          noseLength: 1.0,
+          noseHeight: 1.0,
           noseWidth: w * 0.95,
           windshieldAngle: 0.64,
-          grilleStyle: 'transit',
-          brandName: 'FORD',
-          badgeColor: '#1e3b8b'
+          grilleRows: 4,
+          label: 'Ford Transit'
         };
       case 'fiat-ducato':
         return {
-          bodyColor: '#ffffff', // Italian White
-          accentColor: '#334155',
-          noseLength: 0.85, // Short nose
-          noseHeight: 1.05,
+          shellColor: '#ef4444', // Red
+          wireColor: '#f87171',
+          fillColor: 'rgba(254, 226, 226, 0.15)', // Transparent red-white
+          strokeColor: '#b91c1c',
+          noseLength: 0.8,
+          noseHeight: 1.04,
           noseWidth: w * 0.96,
-          windshieldAngle: 0.7, // Steep
-          grilleStyle: 'ducato',
-          brandName: 'FIAT',
-          badgeColor: '#991b1b'
+          windshieldAngle: 0.72,
+          grilleRows: 2,
+          label: 'Fiat Ducato'
         };
       case 'vw-crafter':
         return {
-          bodyColor: '#d1d5db', // Indium Grey Metallic
-          accentColor: '#1e293b',
-          noseLength: 1.15,
-          noseHeight: 1.0,
+          shellColor: '#a855f7', // Purple
+          wireColor: '#c084fc',
+          fillColor: 'rgba(243, 232, 255, 0.15)', // Transparent violet
+          strokeColor: '#7e22ce',
+          noseLength: 1.1,
+          noseHeight: 0.98,
           noseWidth: w * 0.94,
           windshieldAngle: 0.6,
-          grilleStyle: 'crafter',
-          brandName: 'VOLKSWAGEN',
-          badgeColor: '#e2e8f0'
+          grilleRows: 3,
+          label: 'VW Crafter'
         };
       case 'renault-master':
         return {
-          bodyColor: '#f1f5f9',
-          accentColor: '#0f172a',
-          noseLength: 1.1,
-          noseHeight: 1.04,
+          shellColor: '#10b981', // Green
+          wireColor: '#34d399',
+          fillColor: 'rgba(236, 253, 245, 0.15)', // Transparent emerald
+          strokeColor: '#047857',
+          noseLength: 1.05,
+          noseHeight: 1.02,
           noseWidth: w * 0.93,
           windshieldAngle: 0.62,
-          grilleStyle: 'master',
-          brandName: 'RENAULT',
-          badgeColor: '#d97706'
+          grilleRows: 3,
+          label: 'Renault Master'
         };
       default:
         return {
-          bodyColor: '#ffffff',
-          accentColor: '#1f2937',
+          shellColor: '#94a3b8',
+          wireColor: '#cbd5e1',
+          fillColor: 'rgba(255, 255, 255, 0.15)',
+          strokeColor: '#64748b',
           noseLength: 1.1,
           noseHeight: 1.0,
           noseWidth: w * 0.94,
           windshieldAngle: 0.62,
-          grilleStyle: 'generic',
-          brandName: 'VAN',
-          badgeColor: '#cbd5e1'
+          grilleRows: 3,
+          label: 'Van Builder'
         };
     }
   }, [vehicle.model, w]);
 
-  // Proportional layout calculations
-  const cabLength = brandConfig.noseLength + 0.3; // Cab front nose + cabin space
-  const cargoLength = l - cabLength;
-  const cabinStartX = l / 2 - cabLength;
+  // Procedural canvas vector drawing for the photographic-outline shells
+  const sideTexture = useMemo(() => {
+    if (typeof window === 'undefined') return null;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 2048;
+    canvas.height = 1024;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+
+    // Clear transparent
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Coordinate mapping
+    const scale = 200; // pixels per meter
+    const startX = 150;
+    const groundY = 850;
+
+    const vLength = l * scale;
+    const vHeight = h * scale;
+    const nLength = brandConfig.noseLength * scale;
+    const nHeight = brandConfig.noseHeight * scale;
+    const wBase = wb * scale;
+
+    // Draw the beautiful, detailed vector outline of the selected van model!
+    ctx.beginPath();
+    // 1. Start from rear bumper
+    ctx.moveTo(startX, groundY - 50);
+    // Rear wall
+    ctx.lineTo(startX, groundY - vHeight + 30);
+    // Roof curve (Rear corner)
+    ctx.arcTo(startX, groundY - vHeight, startX + 50, groundY - vHeight, 40);
+    // Roof line
+    ctx.lineTo(startX + vLength - nLength - 50, groundY - vHeight);
+    
+    // Brand Specific Cab roof to windshield transition
+    if (vehicle.model === 'mercedes-sprinter') {
+      ctx.lineTo(startX + vLength - nLength, groundY - vHeight + 20);
+      // Windshield slope
+      ctx.lineTo(startX + vLength - nLength + 120, groundY - nHeight);
+      // Hood line
+      ctx.lineTo(startX + vLength - 30, groundY - nHeight + 10);
+      // Nose front curve
+      ctx.arcTo(startX + vLength, groundY - nHeight + 20, startX + vLength, groundY - 50, 30);
+    } else if (vehicle.model === 'ford-transit') {
+      ctx.lineTo(startX + vLength - nLength, groundY - vHeight + 10);
+      // Windshield slope (steeper)
+      ctx.lineTo(startX + vLength - nLength + 100, groundY - nHeight - 10);
+      // Hood line
+      ctx.lineTo(startX + vLength - 40, groundY - nHeight);
+      // Nose
+      ctx.arcTo(startX + vLength, groundY - nHeight + 10, startX + vLength, groundY - 50, 45);
+    } else {
+      // Fiat Ducato / Default upright nose
+      ctx.lineTo(startX + vLength - nLength, groundY - vHeight + 10);
+      ctx.lineTo(startX + vLength - nLength + 60, groundY - nHeight);
+      ctx.lineTo(startX + vLength - 20, groundY - nHeight + 10);
+      ctx.arcTo(startX + vLength, groundY - nHeight + 20, startX + vLength, groundY - 50, 20);
+    }
+
+    ctx.lineTo(startX + vLength, groundY - 50); // Lower bumper
+    ctx.lineTo(startX + vLength - 120, groundY - 50); // Front wheel arch entry
+    // Front Wheel arch
+    ctx.arc(startX + vLength - vLength * 0.18, groundY - 50, 70, Math.PI, 0, false);
+    // Center floor
+    ctx.lineTo(startX + 180, groundY - 50);
+    // Rear Wheel arch
+    ctx.arc(startX + vLength * 0.22, groundY - 50, 70, Math.PI, 0, false);
+    ctx.lineTo(startX, groundY - 50);
+    ctx.closePath();
+
+    // Fill with soft semi-transparent brand aesthetic
+    ctx.fillStyle = brandConfig.fillColor;
+    ctx.fill();
+
+    // Contour line details (Double stroke for high-fidelity technical look)
+    ctx.strokeStyle = brandConfig.strokeColor;
+    ctx.lineWidth = 6;
+    ctx.stroke();
+
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // 2. Draw Side Glass Windows (translucent dark glass)
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
+    ctx.strokeStyle = brandConfig.strokeColor;
+    ctx.lineWidth = 3;
+
+    // Driver Cab Window
+    ctx.beginPath();
+    ctx.moveTo(startX + vLength - nLength - 40, groundY - vHeight + 100);
+    ctx.lineTo(startX + vLength - nLength + 80, groundY - vHeight + 100);
+    ctx.lineTo(startX + vLength - nLength + 130, groundY - nHeight + 40);
+    ctx.lineTo(startX + vLength - nLength - 40, groundY - nHeight + 40);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Sliding Door Window (campervan style)
+    ctx.beginPath();
+    ctx.roundRect(startX + vLength - nLength - 380, groundY - vHeight + 100, 280, 160, 20);
+    ctx.fill();
+    ctx.stroke();
+
+    // Rear Side Window
+    ctx.beginPath();
+    ctx.roundRect(startX + 120, groundY - vHeight + 100, 240, 160, 20);
+    ctx.fill();
+    ctx.stroke();
+
+    // 3. Sliding Cargo Door Panel Lines
+    ctx.strokeStyle = brandConfig.strokeColor;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(startX + vLength - nLength - 400, groundY - 60);
+    ctx.lineTo(startX + vLength - nLength - 400, groundY - vHeight + 60);
+    ctx.lineTo(startX + vLength - nLength - 80, groundY - vHeight + 60);
+    ctx.lineTo(startX + vLength - nLength - 80, groundY - 60);
+    ctx.stroke();
+
+    // Sliding Door Handle
+    ctx.fillStyle = '#0f172a';
+    ctx.beginPath();
+    ctx.roundRect(startX + vLength - nLength - 130, groundY - vHeight / 2, 40, 15, 4);
+    ctx.fill();
+
+    // 4. Wheels (Solid 3D matching rims)
+    ctx.fillStyle = '#1e293b';
+    ctx.beginPath();
+    ctx.arc(startX + vLength - vLength * 0.18, groundY - 50, 64, 0, Math.PI * 2);
+    ctx.arc(startX + vLength * 0.22, groundY - 50, 64, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 8;
+    ctx.beginPath();
+    ctx.arc(startX + vLength - vLength * 0.18, groundY - 50, 40, 0, Math.PI * 2);
+    ctx.arc(startX + vLength * 0.22, groundY - 50, 40, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // 5. Tech spec labels & dimensions HUD
+    ctx.fillStyle = brandConfig.strokeColor;
+    ctx.font = 'bold 36px monospace';
+    ctx.fillText(brandConfig.label.toUpperCase(), startX + 50, groundY - vHeight + 80);
+    
+    ctx.font = '24px monospace';
+    ctx.fillText(`L: ${length}mm | W: ${width}mm | H: ${height}mm`, startX + 50, groundY - vHeight + 120);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.ClampToEdgeWrapping;
+    texture.wrapT = THREE.ClampToEdgeWrapping;
+    return texture;
+  }, [vehicle.model, l, h, length, width, height, wb, brandConfig]);
+
+  // Derived layout values
+  const cargoHeight = h - 0.25;
 
   return (
     <group>
       {/* =========================================================
-          1. REALISTIC SOLID CHASSIS & FLOOR SYSTEM
+          1. HIGH-TECH GLOWING BLUEPRINT GRID FLOOR
           ========================================================= */}
-      {/* Heavy Black Plastic Underbody Trim */}
-      <mesh position={[0, 0.12, 0]} castShadow receiveShadow>
-        <boxGeometry args={[l, 0.16, w]} />
-        <meshStandardMaterial color="#1e293b" roughness={0.95} metalness={0.4} />
+      {/* Plywood underlay floor */}
+      <mesh position={[0, 0.21, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[l + 0.4, w - 0.04]} />
+        <meshStandardMaterial 
+          color="#1e293b" 
+          transparent 
+          opacity={0.85} 
+          roughness={0.9} 
+          metalness={0.1} 
+        />
       </mesh>
 
-      {/* Rear Solid Stepped Bumper */}
-      <mesh position={[-l / 2 - 0.04, 0.18, 0]} castShadow>
-        <boxGeometry args={[0.08, 0.18, w - 0.04]} />
-        <meshStandardMaterial color="#0f172a" roughness={0.9} />
-      </mesh>
-
-      {/* Front Solid Bumper & Lower Lip */}
-      <mesh position={[l / 2 - 0.06, 0.16, 0]} castShadow>
-        <boxGeometry args={[0.15, 0.22, brandConfig.noseWidth + 0.06]} />
-        <meshStandardMaterial color="#0f172a" roughness={0.9} />
-      </mesh>
-
-      {/* Realistic Birch Plywood Interior Floor */}
-      <mesh position={[cabinStartX / 2 - cabLength / 4, 0.21, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[cargoLength + 0.4, w - 0.04]} />
-        <meshStandardMaterial color="#dcd3c2" roughness={0.6} metalness={0.1} /> {/* Plywood finish */}
-      </mesh>
+      {/* Grid line overlay for technical CAD look */}
+      <gridHelper 
+        args={[12, 60, brandConfig.wireColor, '#334155']} 
+        position={[0, 0.215, 0]} 
+      />
 
       {/* =========================================================
-          2. FRONT CABIN (100% Solid, Fully Rendered Van Cab - Vanspace Style)
+          2. PHOTOREALISTIC TRANSPARENT OUTLINE SHELL (Vanspace Style)
           ========================================================= */}
-      <group position={[l / 2 - cabLength / 2, 0.58, 0]}>
-        {/* Main Solid Cab Block */}
+      {sideTexture && (
+        <group>
+          {/* A. Near Right-Side Transparent Van Overlay Plane */}
+          <mesh position={[0, h / 2 + 0.1, w / 2 + 0.01]} rotation={[0, 0, 0]}>
+            <planeGeometry args={[l + 0.8, h + 0.4]} />
+            <meshBasicMaterial 
+              map={sideTexture} 
+              transparent 
+              opacity={0.45} 
+              side={THREE.DoubleSide} 
+            />
+          </mesh>
+
+          {/* B. Far Left-Side Transparent Van Overlay Plane */}
+          <mesh position={[0, h / 2 + 0.1, -w / 2 - 0.01]} rotation={[0, Math.PI, 0]}>
+            <planeGeometry args={[l + 0.8, h + 0.4]} />
+            <meshBasicMaterial 
+              map={sideTexture} 
+              transparent 
+              opacity={0.45} 
+              side={THREE.DoubleSide} 
+            />
+          </mesh>
+        </group>
+      )}
+
+      {/* =========================================================
+          3. TRANSLUCENT 3D FRONT CAB CABIN & ACCENTS
+          ========================================================= */}
+      <group position={[l / 2 - brandConfig.noseLength / 2, 0.58, 0]}>
+        {/* Solid Translucent Cab Block */}
         <mesh castShadow receiveShadow>
-          <boxGeometry args={[cabLength, 0.75, w]} />
-          <meshStandardMaterial color={brandConfig.bodyColor} roughness={0.18} metalness={0.7} />
+          <boxGeometry args={[brandConfig.noseLength, 0.75, w]} />
+          <meshStandardMaterial 
+            color={brandConfig.shellColor} 
+            transparent 
+            opacity={0.08} 
+            roughness={0.1} 
+            metalness={0.9}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+        {/* Glowing Contour Wireframe */}
+        <mesh>
+          <boxGeometry args={[brandConfig.noseLength, 0.75, w]} />
+          <meshBasicMaterial 
+            color={brandConfig.wireColor} 
+            wireframe 
+            transparent 
+            opacity={0.25} 
+          />
         </mesh>
 
-        {/* Slanted Hood Wedge */}
-        <mesh position={[cabLength / 2 - brandConfig.noseLength / 4, -0.15, 0]} castShadow receiveShadow>
-          <boxGeometry args={[brandConfig.noseLength / 2, 0.45, brandConfig.noseWidth]} />
-          <meshStandardMaterial color={brandConfig.bodyColor} roughness={0.18} metalness={0.7} />
+        {/* Headlamps (Glowing vector bulbs) */}
+        <mesh position={[brandConfig.noseLength / 2 - 0.01, -0.16, brandConfig.noseWidth * 0.42]} castShadow>
+          <boxGeometry args={[0.05, 0.08, 0.12]} />
+          <meshStandardMaterial color="#fff" emissive={brandConfig.wireColor} emissiveIntensity={1.5} />
         </mesh>
-
-        {/* Solid Windshield Frame and A-Pillars */}
-        <mesh 
-          position={[cabLength / 4 - 0.15, 0.55, 0]} 
-          rotation={[0, 0, -brandConfig.windshieldAngle]} 
-          castShadow
-        >
-          <boxGeometry args={[0.05, 0.65, w - 0.04]} />
-          <meshStandardMaterial color={brandConfig.bodyColor} roughness={0.18} metalness={0.7} />
-        </mesh>
-
-        {/* Windshield Glass Sheet */}
-        <mesh 
-          position={[cabLength / 4 - 0.12, 0.55, 0]} 
-          rotation={[0, 0, -brandConfig.windshieldAngle]} 
-          castShadow
-        >
-          <boxGeometry args={[0.01, 0.62, w - 0.08]} />
-          <meshStandardMaterial color="#0f172a" transparent opacity={0.9} roughness={0.02} metalness={0.95} />
-        </mesh>
-
-        {/* Solid Cab Side Windows */}
-        <mesh position={[-0.1, 0.2, w / 2]} castShadow>
-          <boxGeometry args={[0.7, 0.35, 0.025]} />
-          <meshStandardMaterial color="#0f172a" transparent opacity={0.9} roughness={0.02} metalness={0.95} />
-        </mesh>
-        <mesh position={[-0.1, 0.2, -w / 2]} castShadow>
-          <boxGeometry args={[0.7, 0.35, 0.025]} />
-          <meshStandardMaterial color="#0f172a" transparent opacity={0.9} roughness={0.02} metalness={0.95} />
-        </mesh>
-
-        {/* Solid Side Door Panels with Cutout Outlines */}
-        <mesh position={[-0.05, -0.15, w / 2 + 0.005]} castShadow>
-          <boxGeometry args={[0.9, 0.45, 0.01]} />
-          <meshStandardMaterial color={brandConfig.bodyColor} roughness={0.2} metalness={0.7} />
-        </mesh>
-        <mesh position={[-0.05, -0.15, -w / 2 - 0.005]} castShadow>
-          <boxGeometry args={[0.9, 0.45, 0.01]} />
-          <meshStandardMaterial color={brandConfig.bodyColor} roughness={0.2} metalness={0.7} />
-        </mesh>
-
-        {/* Detailed Wing Mirrors */}
-        <group position={[0.38, 0.05, w / 2 + 0.06]}>
-          <mesh castShadow><boxGeometry args={[0.04, 0.02, 0.08]} /><meshStandardMaterial color="#0f172a" /></mesh>
-          <mesh position={[0, 0.04, 0.04]} castShadow><boxGeometry args={[0.08, 0.2, 0.05]} /><meshStandardMaterial color="#0f172a" /></mesh>
-        </group>
-        <group position={[0.38, 0.05, -w / 2 - 0.06]}>
-          <mesh castShadow><boxGeometry args={[0.04, 0.02, 0.08]} /><meshStandardMaterial color="#0f172a" /></mesh>
-          <mesh position={[0, 0.04, -0.04]} castShadow><boxGeometry args={[0.08, 0.2, 0.05]} /><meshStandardMaterial color="#0f172a" /></mesh>
-        </group>
-
-        {/* ================= Grilles & Brand Accessories ================= */}
-        <group position={[cabLength / 2 + 0.01 + brandConfig.noseLength / 4, -0.22, 0]}>
-          {/* Heavy Black Grille surround */}
-          <mesh castShadow><boxGeometry args={[0.03, 0.28, brandConfig.noseWidth * 0.8]} /><meshStandardMaterial color="#0f172a" /></mesh>
-          
-          {brandConfig.grilleStyle === 'sprinter' && (
-            <>
-              <mesh position={[0.018, 0.06, 0]}><boxGeometry args={[0.01, 0.02, brandConfig.noseWidth * 0.76]} /><meshStandardMaterial color="#cbd5e1" metalness={0.9} /></mesh>
-              <mesh position={[0.018, -0.06, 0]}><boxGeometry args={[0.01, 0.02, brandConfig.noseWidth * 0.76]} /><meshStandardMaterial color="#cbd5e1" metalness={0.9} /></mesh>
-              <mesh position={[0.02, 0, 0]} rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[0.055, 0.055, 0.01, 16]} /><meshStandardMaterial color="#cbd5e1" metalness={0.9} /></mesh>
-            </>
-          )}
-
-          {brandConfig.grilleStyle === 'transit' && (
-            <>
-              <mesh position={[0.015, 0, 0]}><boxGeometry args={[0.01, 0.22, brandConfig.noseWidth * 0.74]} /><meshStandardMaterial color="#1e293b" wireframe /></mesh>
-              <mesh position={[0.02, 0, 0]} rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[0.035, 0.035, 0.01, 16]} /><meshStandardMaterial color="#1e3a8a" /></mesh>
-            </>
-          )}
-
-          {brandConfig.grilleStyle === 'ducato' && (
-            <>
-              <mesh position={[0.015, 0.02, 0]}><boxGeometry args={[0.01, 0.05, brandConfig.noseWidth * 0.76]} /><meshStandardMaterial color="#1e293b" /></mesh>
-              <mesh position={[0.02, 0.02, 0]} rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[0.04, 0.04, 0.01, 16]} /><meshStandardMaterial color="#991b1b" /></mesh>
-            </>
-          )}
-
-          {brandConfig.grilleStyle === 'crafter' && (
-            <>
-              <mesh position={[0.015, 0.04, 0]}><boxGeometry args={[0.01, 0.015, brandConfig.noseWidth * 0.78]} /><meshStandardMaterial color="#e2e8f0" metalness={0.9} /></mesh>
-              <mesh position={[0.015, -0.04, 0]}><boxGeometry args={[0.01, 0.015, brandConfig.noseWidth * 0.78]} /><meshStandardMaterial color="#e2e8f0" metalness={0.9} /></mesh>
-            </>
-          )}
-
-          {/* Emissive Premium Headlights */}
-          <mesh position={[-0.01, 0.06, brandConfig.noseWidth * 0.42]} castShadow>
-            <boxGeometry args={[0.04, 0.08, 0.12]} />
-            <meshStandardMaterial color="#ffffff" emissive="#fffee8" emissiveIntensity={1.2} />
-          </mesh>
-          <mesh position={[-0.01, 0.06, -brandConfig.noseWidth * 0.42]} castShadow>
-            <boxGeometry args={[0.04, 0.08, 0.12]} />
-            <meshStandardMaterial color="#ffffff" emissive="#fffee8" emissiveIntensity={1.2} />
-          </mesh>
-        </group>
-      </group>
-
-      {/* =========================================================
-          3. CARGO SHELL CUTAWAY (Left Wall + Back Doors + Roof SOLID; Right Wall OPEN)
-          ========================================================= */}
-      <group position={[cabinStartX / 2 - cabLength / 4, h / 2 + 0.15, 0]}>
-        {/* A. SOLID LEFT SIDE WALL (Far Wall, Z < 0) */}
-        <mesh position={[0, 0, -w / 2]} castShadow receiveShadow>
-          <boxGeometry args={[cargoLength + 0.1, h - 0.2, 0.05]} />
-          <meshStandardMaterial color={brandConfig.bodyColor} roughness={0.2} metalness={0.7} />
-        </mesh>
-
-        {/* Inlaid Left campervan windows cutouts */}
-        <mesh position={[0.3, 0.35, -w / 2 - 0.01]} castShadow>
-          <boxGeometry args={[1.2, 0.4, 0.02]} />
-          <meshStandardMaterial color="#0f172a" transparent opacity={0.95} roughness={0.02} metalness={0.95} />
-        </mesh>
-
-        {/* B. SOLID REAR PANEL & OPENING DOORS (Rear, X < 0) */}
-        <group position={[-(cargoLength / 2), 0, 0]}>
-          {/* Back Door Panel Frame */}
-          <mesh position={[-0.02, 0, 0]} castShadow>
-            <boxGeometry args={[0.04, h - 0.2, w]} />
-            <meshStandardMaterial color={brandConfig.bodyColor} roughness={0.2} metalness={0.7} />
-          </mesh>
-          
-          {/* Back Door Glass Windows */}
-          <mesh position={[-0.045, 0.38, w * 0.22]} castShadow><boxGeometry args={[0.01, 0.35, w * 0.32]} /><meshStandardMaterial color="#0f172a" transparent opacity={0.9} /></mesh>
-          <mesh position={[-0.045, 0.38, -w * 0.22]} castShadow><boxGeometry args={[0.01, 0.35, w * 0.32]} /><meshStandardMaterial color="#0f172a" transparent opacity={0.9} /></mesh>
-
-          {/* Emissive Taillights */}
-          <mesh position={[-0.045, -0.3, w * 0.4]} castShadow><boxGeometry args={[0.01, 0.28, 0.06]} /><meshStandardMaterial color="#ff0000" emissive="#bb0000" emissiveIntensity={0.8} /></mesh>
-          <mesh position={[-0.045, -0.3, -w * 0.4]} castShadow><boxGeometry args={[0.01, 0.28, 0.06]} /><meshStandardMaterial color="#ff0000" emissive="#bb0000" emissiveIntensity={0.8} /></mesh>
-        </group>
-
-        {/* C. SOLID HIGH ROOF (Top, Y > 0) */}
-        <mesh position={[0, (h - 0.25) / 2, 0]} castShadow>
-          <boxGeometry args={[cargoLength + 0.1, 0.05, w]} />
-          <meshStandardMaterial color={brandConfig.bodyColor} roughness={0.2} metalness={0.7} />
-        </mesh>
-
-        {/* Premium Roof Accessories - Solar Mounting Rails & Fan Dome */}
-        <mesh position={[0, (h - 0.2) / 2 + 0.05, w / 2 - 0.08]} castShadow><boxGeometry args={[cargoLength - 0.4, 0.03, 0.02]} /><meshStandardMaterial color="#334155" metalness={0.9} /></mesh>
-        <mesh position={[0, (h - 0.2) / 2 + 0.05, -w / 2 + 0.08]} castShadow><boxGeometry args={[cargoLength - 0.4, 0.03, 0.02]} /><meshStandardMaterial color="#334155" metalness={0.9} /></mesh>
-
-        {/* Realistic Offgrid Solar Panels on Roof */}
-        <group position={[0.2, (h - 0.2) / 2 + 0.07, 0]}>
-          <mesh castShadow><boxGeometry args={[1.5, 0.02, w * 0.72]} /><meshStandardMaterial color="#020617" roughness={0.2} metalness={0.9} /></mesh>
-          {/* Blue solar grid texture lines */}
-          <mesh position={[0, 0.012, 0]}><boxGeometry args={[1.48, 0.005, w * 0.7]} /><meshStandardMaterial color="#1e3a8a" wireframe /></mesh>
-        </group>
-
-        {/* D. PREMIUM SLIDING DOOR (Fully Slid Open, Exposing Interior layout) */}
-        {/* Slid back panel sitting just outside the rear right wall section */}
-        <mesh position={[-cargoLength / 3, 0, w / 2 + 0.03]} castShadow>
-          <boxGeometry args={[1.2, h - 0.25, 0.02]} />
-          <meshStandardMaterial color={brandConfig.bodyColor} roughness={0.2} metalness={0.7} />
-        </mesh>
-        {/* Sliding Rail track trim */}
-        <mesh position={[0, -0.05, w / 2 + 0.015]} castShadow>
-          <boxGeometry args={[cargoLength, 0.025, 0.01]} />
-          <meshStandardMaterial color="#334155" metalness={0.95} />
+        <mesh position={[brandConfig.noseLength / 2 - 0.01, -0.16, -brandConfig.noseWidth * 0.42]} castShadow>
+          <boxGeometry args={[0.05, 0.08, 0.12]} />
+          <meshStandardMaterial color="#fff" emissive={brandConfig.wireColor} emissiveIntensity={1.5} />
         </mesh>
       </group>
 
       {/* =========================================================
-          4. DETAILED WHEELBASE TIRES & WHEEL ARCHES
+          4. DETAILED TYRES & WHEEL ARCHES
           ========================================================= */}
       <group>
         {/* Front Left Tyre */}
         <group position={[wb / 2, 0.32, w / 2 - 0.03]}>
           <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
-            <cylinderGeometry args={[0.32, 0.32, 0.24, 32]} />
-            <meshStandardMaterial color="#0f172a" roughness={0.9} />
+            <cylinderGeometry args={[0.32, 0.32, 0.24, 24]} />
+            <meshStandardMaterial color="#0f172a" transparent opacity={0.25} />
           </mesh>
-          <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 0.03]} castShadow>
-            <cylinderGeometry args={[0.18, 0.18, 0.2, 16]} />
-            <meshStandardMaterial color="#94a3b8" metalness={0.95} roughness={0.05} />
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.32, 0.32, 0.24, 24]} />
+            <meshBasicMaterial color={brandConfig.wireColor} wireframe transparent opacity={0.4} />
           </mesh>
         </group>
 
         {/* Front Right Tyre */}
         <group position={[wb / 2, 0.32, -w / 2 + 0.03]}>
           <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
-            <cylinderGeometry args={[0.32, 0.32, 0.24, 32]} />
-            <meshStandardMaterial color="#0f172a" roughness={0.9} />
+            <cylinderGeometry args={[0.32, 0.32, 0.24, 24]} />
+            <meshStandardMaterial color="#0f172a" transparent opacity={0.25} />
           </mesh>
-          <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, -0.03]} castShadow>
-            <cylinderGeometry args={[0.18, 0.18, 0.2, 16]} />
-            <meshStandardMaterial color="#94a3b8" metalness={0.95} roughness={0.05} />
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.32, 0.32, 0.24, 24]} />
+            <meshBasicMaterial color={brandConfig.wireColor} wireframe transparent opacity={0.4} />
           </mesh>
         </group>
 
         {/* Rear Left Tyre */}
         <group position={[-wb / 2, 0.32, w / 2 - 0.03]}>
           <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
-            <cylinderGeometry args={[0.32, 0.32, 0.24, 32]} />
-            <meshStandardMaterial color="#0f172a" roughness={0.9} />
+            <cylinderGeometry args={[0.32, 0.32, 0.24, 24]} />
+            <meshStandardMaterial color="#0f172a" transparent opacity={0.25} />
           </mesh>
-          <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 0.03]} castShadow>
-            <cylinderGeometry args={[0.18, 0.18, 0.2, 16]} />
-            <meshStandardMaterial color="#94a3b8" metalness={0.95} roughness={0.05} />
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.32, 0.32, 0.24, 24]} />
+            <meshBasicMaterial color={brandConfig.wireColor} wireframe transparent opacity={0.4} />
           </mesh>
         </group>
 
         {/* Rear Right Tyre */}
         <group position={[-wb / 2, 0.32, -w / 2 + 0.03]}>
           <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
-            <cylinderGeometry args={[0.32, 0.32, 0.24, 32]} />
-            <meshStandardMaterial color="#0f172a" roughness={0.9} />
+            <cylinderGeometry args={[0.32, 0.32, 0.24, 24]} />
+            <meshStandardMaterial color="#0f172a" transparent opacity={0.25} />
           </mesh>
-          <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, -0.03]} castShadow>
-            <cylinderGeometry args={[0.18, 0.18, 0.2, 16]} />
-            <meshStandardMaterial color="#94a3b8" metalness={0.95} roughness={0.05} />
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.32, 0.32, 0.24, 24]} />
+            <meshBasicMaterial color={brandConfig.wireColor} wireframe transparent opacity={0.4} />
           </mesh>
         </group>
 
         {/* Internal Floor Wheel Arches inside the cargo space */}
         <mesh position={[-wb / 2, 0.38, w / 2 - 0.18]} castShadow>
-          <boxGeometry args={[0.82, 0.44, 0.3]} />
+          <boxGeometry args={[0.82, 0.34, 0.3]} />
           <meshStandardMaterial color="#334155" roughness={0.95} />
         </mesh>
         <mesh position={[-wb / 2, 0.38, -w / 2 + 0.18]} castShadow>
-          <boxGeometry args={[0.82, 0.44, 0.3]} />
+          <boxGeometry args={[0.82, 0.34, 0.3]} />
           <meshStandardMaterial color="#334155" roughness={0.95} />
         </mesh>
       </group>
@@ -369,7 +414,7 @@ export default function ProceduralVan({ vehicle }: ProceduralVanProps) {
       {/* =========================================================
           5. SOLID CABIN DRIVER / PASSENGER CAPTAIN CHAIRS
           ========================================================= */}
-      <group position={[l / 2 - cabLength * 1.15, 0.48, 0]}>
+      <group position={[l / 2 - brandConfig.noseLength * 1.15, 0.48, 0]}>
         {/* Solid Driver Chair */}
         <group position={[0, 0.1, w * 0.24]}>
           <mesh castShadow><boxGeometry args={[0.42, 0.12, 0.44]} /><meshStandardMaterial color="#475569" roughness={0.8} /></mesh>
