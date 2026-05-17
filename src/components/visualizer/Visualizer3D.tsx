@@ -19,7 +19,7 @@ function SceneComponents() {
   const { components, selectedComponentId, selectComponent } = useProjectStore();
 
   return (
-    <>
+    <group position={[0, 0.21, 0]}>
       {components.map((component) => (
         <group
           key={component.id}
@@ -45,7 +45,7 @@ function SceneComponents() {
         </group>
       ))}
       <WeightHeatmap />
-    </>
+    </group>
   );
 }
 
