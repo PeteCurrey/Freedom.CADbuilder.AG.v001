@@ -9,6 +9,7 @@ import {
   ContactShadows,
   Grid
 } from '@react-three/drei';
+import * as THREE from 'three';
 import { useProjectStore } from '@/store/useProjectStore';
 
 import ProceduralVan from '../geometry/ProceduralVan';
@@ -53,42 +54,98 @@ export default function Visualizer3D() {
   const { vehicle } = useProjectStore();
 
   return (
-    <div className="w-full h-full bg-[#f8fafc]">
-      <Canvas shadows>
+    <div className="w-full h-full bg-[#090d16] relative overflow-hidden">
+      {/* CAD Studio Grids Overlay UI (for premium spatial visual feel) */}
+      <div className="absolute inset-x-0 bottom-4 z-10 pointer-events-none flex justify-center">
+        <div className="bg-slate-950/80 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/10 flex items-center gap-6">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span className="text-[10px] uppercase font-bold tracking-widest text-slate-300">ACES FILMIC PIPELINE</span>
+          </div>
+          <div className="w-px h-3 bg-white/20"></div>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] uppercase font-bold tracking-widest text-slate-400">STUDIO LIGHTING</span>
+          </div>
+          <div className="w-px h-3 bg-white/20"></div>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] uppercase font-bold tracking-widest text-slate-400">SHADOW MAP: 2K OPTIMIZED</span>
+          </div>
+        </div>
+      </div>
+
+      <Canvas 
+        shadows 
+        gl={{ 
+          antialias: true, 
+          alpha: false, 
+          powerPreference: "high-performance",
+          toneMapping: THREE.ACESFilmicToneMapping, 
+          toneMappingExposure: 1.15
+        }}
+      >
         <Suspense fallback={null}>
-          <PerspectiveCamera makeDefault position={[8, 5, 8]} fov={40} />
-          <OrbitControls makeDefault minPolarAngle={0} maxPolarAngle={Math.PI / 1.75} />
+          {/* Architectural telephoto focal crop: FOV 35, Lower epic 3/4 camera positioning */}
+          <PerspectiveCamera makeDefault position={[6.5, 3.2, 6.5]} fov={32} />
           
-          <ambientLight intensity={0.7} />
+          {/* Cinematic smooth damping orbit controls */}
+          <OrbitControls 
+            makeDefault 
+            enableDamping 
+            dampingFactor={0.05}
+            minDistance={3.5} 
+            maxDistance={11} 
+            minPolarAngle={Math.PI / 6}
+            maxPolarAngle={Math.PI / 2.05} // Blocks looking below ground plane
+          />
+          
+          {/* Ambient light tuned down for realistic depth of shadows */}
+          <ambientLight intensity={0.35} />
+
+          {/* Steeper Main Sun Light for crisp, realistic roof & side panel shadows */}
           <directionalLight
-            position={[10, 10, 5]}
-            intensity={1}
+            position={[12, 16, 8]}
+            intensity={1.5}
             castShadow
             shadow-mapSize={[2048, 2048]}
+            shadow-bias={-0.00008}
+            shadow-normalBias={0.02}
+          />
+
+          {/* Studio Warm Fill Light to create cinematic contrast inside the layout */}
+          <spotLight
+            position={[-4, 8, 8]}
+            angle={0.6}
+            penumbra={1}
+            intensity={1.2}
+            castShadow
+            shadow-mapSize={[1024, 1024]}
+          />
+
+          {/* Soft Ground Contact Shadows to anchor wheels and chassis perfectly */}
+          <ContactShadows 
+            position={[0, 0.01, 0]} 
+            opacity={0.7} 
+            scale={18} 
+            blur={1.8} 
+            far={3.5} 
           />
           
           <ProceduralVan vehicle={vehicle} />
           <SceneComponents />
 
-          <ContactShadows 
-            position={[0, 0, 0]} 
-            opacity={0.4} 
-            scale={20} 
-            blur={2} 
-            far={4.5} 
-          />
-          
+          {/* Dark high-contrast blueprint grid helper */}
           <Grid 
             infiniteGrid 
-            fadeDistance={50} 
-            fadeStrength={5} 
+            fadeDistance={30} 
+            fadeStrength={4} 
             sectionSize={1} 
             cellSize={0.2}
-            sectionColor="#e2e8f0"
-            cellColor="#cbd5e1"
+            sectionColor="#1e293b"
+            cellColor="#0f172a"
           />
           
-          <Environment preset="city" />
+          {/* Studio light preset for warm, photorealistic, professional metal/wood reflections */}
+          <Environment preset="studio" />
         </Suspense>
       </Canvas>
     </div>
