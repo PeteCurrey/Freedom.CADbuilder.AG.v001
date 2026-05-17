@@ -2,20 +2,9 @@ import { create } from 'zustand';
 import { ProjectState, VehicleConfig, VanComponent } from '@/types';
 import { getSnappingLogic } from '@/utils/snappingUtils';
 import { PRODUCT_REGISTRY } from '@/data/products';
+import { VEHICLE_REGISTRY } from '@/data/vehicles';
 
-const defaultVehicle: VehicleConfig = {
-  id: 'v1',
-  model: 'mercedes-sprinter',
-  variant: 'L2H2',
-  dimensions: {
-    length: 5932,
-    width: 2020,
-    height: 2620,
-    wheelbase: 3665
-  },
-  payload: 1200,
-  kerbWeight: 2300
-};
+const defaultVehicle = VEHICLE_REGISTRY[0];
 
 export const useProjectStore = create<ProjectState>((set, get) => ({
   vehicle: defaultVehicle,

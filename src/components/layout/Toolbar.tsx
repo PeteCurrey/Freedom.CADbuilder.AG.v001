@@ -15,9 +15,13 @@ import {
   BoxSelect
 } from 'lucide-react';
 import { useUIStore } from '@/store/useUIStore';
+import { useProjectStore } from '@/store/useProjectStore';
+import { VEHICLE_REGISTRY } from '@/data/vehicles';
+import { Truck } from 'lucide-react';
 
 export default function Toolbar() {
   const { activeTool, setActiveTool, activeView, setActiveView } = useUIStore();
+  const { vehicle, setVehicle } = useProjectStore();
 
   const tools = [
     { id: 'select', icon: MousePointer2, label: 'Select' },
@@ -33,8 +37,37 @@ export default function Toolbar() {
           <div className="w-8 h-8 bg-black rounded flex items-center justify-center">
             <Box className="text-white w-5 h-5" />
           </div>
-          <span className="font-semibold text-charcoal tracking-tight">AMPLIOS <span className="font-light">STUDIO</span></span>
+          <span className="font-semibold text-charcoal tracking-tight shrink-0">AMPLIOS <span className="font-light">STUDIO</span></span>
         </div>
+
+        <div className="h-6 w-[1px] bg-border shrink-0" />
+
+        {/* Premium Exact Vehicle Selector */}
+        <div className="flex items-center gap-2 bg-secondary/50 px-3 py-1.5 rounded-xl border border-border hover:border-primary/30 transition-all cursor-pointer group relative shrink-0">
+          <Truck size={14} className="text-primary group-hover:scale-110 transition-transform" />
+          <select 
+            value={vehicle.id} 
+            onChange={(e) => {
+              const selected = VEHICLE_REGISTRY.find(v => v.id === e.target.value);
+              if (selected) setVehicle(selected);
+            }}
+            className="bg-transparent text-[10px] font-black uppercase tracking-wider focus:outline-none cursor-pointer pr-4 appearance-none text-charcoal font-black"
+            style={{ 
+              backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2364748b\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2.5\' d=\'M19 9l-7 7-7-7\'/%3E%3C/svg%3E")', 
+              backgroundPosition: 'right center', 
+              backgroundSize: '10px', 
+              backgroundRepeat: 'no-repeat' 
+            }}
+          >
+            {VEHICLE_REGISTRY.map(v => (
+              <option key={v.id} value={v.id} className="text-black bg-white font-bold uppercase tracking-wider text-[9px]">
+                {v.model.replace('-', ' ')} - {v.variant}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="h-6 w-[1px] bg-border shrink-0" />
 
         <nav className="flex items-center gap-1 p-1 bg-secondary rounded-md">
           {tools.map((tool) => (
