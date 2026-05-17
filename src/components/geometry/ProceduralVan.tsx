@@ -157,8 +157,8 @@ export default function ProceduralVan({ vehicle }: ProceduralVanProps) {
         ))}
 
         {/* Center Brand Badge */}
-        <mesh position={[0.025, 0, 0]}>
-          <cylinderGeometry args={[0.04, 0.04, 0.01, 16]} rotation={[0, 0, Math.PI / 2]} />
+        <mesh position={[0.025, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.04, 0.04, 0.01, 16]} />
           <meshStandardMaterial color={style.badgeColor} metalness={0.9} roughness={0.1} />
         </mesh>
       </group>
